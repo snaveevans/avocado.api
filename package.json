@@ -1,0 +1,18 @@
+{
+  "name": "nodefun",
+  "version": "1.0.0",
+  "description": "playground",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "tyler",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "moment": "^2.21.0",
+    "mongoose": "^5.0.11",
+    "uuid": "^3.2.1"
+  }
+}
