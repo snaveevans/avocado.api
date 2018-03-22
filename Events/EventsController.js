@@ -7,18 +7,36 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
 router.get('/', function (req, res) {
-    res.status(200)
-        .send({ name: "lan party", id: 3 });
+    Event.find()
+        .then(events => {
+            res.status(200).send(events);
+        });
 });
 
+router.get('/:id', function (req, res) {
+    Event.findById(req.params.id)
+        .then(event => {
+            res.status(200).send(event);
+        });
+})
+
 router.post('/', function (req, res) {
-    var title = req.body.title;
-    var description = req.body.description;
-    var date = req.body.date;
+    var { title, description, date } = req.body;
 
-    var event = Event.create(title, description, date);
+    var err = Event.getErrors({ title, description, date });
 
-    res.status(200).send(event);
+    if (err) {
+        res.status(400).send({ error: err });
+        return;
+    }
+
+    var event = Event.create({ title, description, date })
+        .then(event => {
+            res.status(200).send(event);
+        })
+        .catch(reason => {
+            res.status(500).send();
+        })
 })
 
 module.exports = router;
