@@ -1,9 +1,11 @@
-const express = require('express')
-const app = express()
+var express = require('express');
+var app = express();
+var db = require('./db');
 
-app.get('/', (req, res) => res.send('Hello World!'))
+app.get('/', (req, res) => res.send({ version: '1.0.0'}));
 
-var eventRouter = require('./Events/EventRouter');
-app.use('/events', eventRouter);
+var eventsController = require('./Controllers/EventsController');
 
-app.listen(3000, () => console.log('Example app listening on port 3000!'))
+app.use('/events', eventsController);
+
+module.exports = app;

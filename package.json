@@ -2,9 +2,9 @@
   "name": "nodefun",
   "version": "1.0.0",
   "description": "playground",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
-    "start:dev": "nodemon app.js"
+    "start:dev": "nodemon server.js"
   },
   "author": "tyler",
   "license": "ISC",
