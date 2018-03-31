@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
-var Event = require('../Domain/Event');
+var Event = require('../domain/Event');
 var itemsController = require('./ItemsController');
 
 router.use('/:eventId/items', itemsController);
@@ -23,10 +23,13 @@ router.get('/', (req, res) => {
         .catch(err => handleError(res, req, err));
 });
 
-router.get('/:eventId', (req, res) => {
+router.get('/:id', (req, res) => {
     Event.findById(req.params.id)
         .then(event => {
-            res.status(200).send(event);
+            if (!event)
+                res.status(400).send({ error: 'no event' });
+            else
+                res.status(200).send(event);
         })
         .catch(err => handleError(res, req, err));
 });
@@ -48,11 +51,11 @@ router.post('/', (req, res) => {
         .catch(err => handleError(res, req, err));
 });
 
-router.put('/:eventId', (req, res) => {
+router.put('/:id', (req, res) => {
 
 });
 
-router.delete('/:eventId', (req, res) => {
+router.delete('/:id', (req, res) => {
     Event.delete(req.params.id)
         .then(info => {
             res.status(204).send();

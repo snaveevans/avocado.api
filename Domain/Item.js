@@ -9,7 +9,8 @@ const Item = mongoose.model('Item', {
     end: String,
     created: String,
     title: String,
-    description: String
+    description: String,
+    addressId: String
 });
 
 const createTime = ({ eventId, start, end }) => {
@@ -64,15 +65,17 @@ const createLocation = ({ eventId, address }) => {
     const item = new Item({
         type: 'Location',
         eventId,
-        address
+        addressId: address._id
     });
 
     return item.save();
 }
 
 const isLocationValid = ({ address }) => {
-    if (address == null || validator.isEmpty(address))
+    if (address == null)
         return 'address must have a value';
+    if (address._id == null || validator.isEmpty(address._id))
+        return "address doesn't have an id";
 }
 
 module.exports = {

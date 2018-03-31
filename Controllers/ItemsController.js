@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router({ mergeParams: true });
 var bodyParser = require('body-parser');
-var Item = require('../Domain/Item');
+var Item = require('../domain/Item');
+var Address = require('../values/Address');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
@@ -66,19 +67,23 @@ router.post('/activity', (req, res) => {
 });
 
 router.post('/location', (req, res) => {
-    var { address } = req.body;
+    var { street, city, state, country } = req.body;
     var eventId = req.params.eventId;
 
-    var error = Item.isLocationValid({ address });
+    var addressError = Address.isValid({ street, city, state, country });
 
-    if (errors) {
-        res.status(400).send({ error });
+    if (addressError) {
+        res.status(400).send({ error: addressError });
         return;
     }
 
-    Item.createLocation({ eventId, address })
-        .then(location => {
-            res.status(201).send(location);
+    Address.create({ street, city, state, country })
+        .then(address => {
+            Item.createLocation({ eventId, address })
+                .then(location => {
+                    res.status(201).send(location);
+                })
+                .catch(err => handleError(res, req, err));
         })
         .catch(err => handleError(res, req, err));
 });
