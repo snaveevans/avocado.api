@@ -53,7 +53,6 @@ const login = ({ username, password }) => {
                 var account = accounts[0];
                 bcrypt.compare(password, account.password, function (err, res) {
                     if (res) {
-                        delete account.password;
                         resolve(sanitize(account));
                     } else {
                         reject();
