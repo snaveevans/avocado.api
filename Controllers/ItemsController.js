@@ -16,16 +16,16 @@ const handleError = (res, req, err) => {
 router.get('/', (req, res) => {
     var eventId = req.params.eventId;
     Item.find({ eventId })
-        .then(events => {
-            res.status(200).send(events);
+        .then(items => {
+            res.status(200).send(items);
         })
         .catch(err => handleError(res, req, err));
 });
 
 router.get('/:id', (req, res) => {
     Item.findById(req.params.id)
-        .then(event => {
-            res.status(200).send(event);
+        .then(item => {
+            res.status(200).send(item);
         })
         .catch(err => handleError(res, req, err));
 });

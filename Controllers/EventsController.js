@@ -2,9 +2,11 @@ var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
 var Event = require('../domain/Event');
-var itemsController = require('./ItemsController');
 
+var itemsController = require('./ItemsController');
+var rolesController = require('./RolesController');
 router.use('/:eventId/items', itemsController);
+router.use('/:eventId/roles', rolesController);
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());

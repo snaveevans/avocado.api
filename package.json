@@ -9,6 +9,7 @@
   "author": "tyler",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "moment": "^2.21.0",
