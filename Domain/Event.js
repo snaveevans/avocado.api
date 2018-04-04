@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
 var validator = require('validator');
+var Role = require('./Role');
+var RoleAccount = require('./RoleAccount');
 
 const Event = mongoose.model('Event', {
     title: String,
@@ -9,17 +11,31 @@ const Event = mongoose.model('Event', {
     created: String
 });
 
-const create = ({ title, description, date }) => {
-    var dateActual = moment(date, 'YYYY-MM-DDTHH:mm:ss Z', true);
+const create = ({ title, description, date }, account) => {
+    return new Promise((resolve, reject) => {
+        var dateActual = moment(date, 'YYYY-MM-DDTHH:mm:ss Z', true);
 
-    const event = new Event({
-        title,
-        description,
-        date: dateActual.utc().format(),
-        created: moment().utc().format()
-    });
+        const event = new Event({
+            title,
+            description,
+            date: dateActual.utc().format(),
+            created: moment().utc().format()
+        });
 
-    return event.save();
+        event.save()
+            .then(event => {
+                var hostRolePromise = Role.createHostRole(event);
+                var guestRolePromise = Role.createGuestRole(event);
+                Promise.all([hostRolePromise, guestRolePromise])
+                    .then(allData => {
+                        var hostRole = allData[0];
+                        RoleAccount.create({ role: hostRole, account })
+                            .then(roleAccount => {
+                                return resolve(event);
+                            }).catch(err => { return reject(err) });
+                    }).catch(err => { return reject(err) });
+            }).catch(err => { return reject(err) });
+    })
 }
 
 const isValid = ({ title, description, date }) => {

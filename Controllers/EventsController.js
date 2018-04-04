@@ -1,15 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var bodyParser = require('body-parser');
 var Event = require('../domain/Event');
 
 var itemsController = require('./ItemsController');
 var rolesController = require('./RolesController');
 router.use('/:eventId/items', itemsController);
 router.use('/:eventId/roles', rolesController);
-
-router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json());
 
 const handleError = (res, req, err) => {
     res.status(500).send({ error: 'internal error' });
@@ -41,17 +37,15 @@ router.post('/', (req, res) => {
 
     var error = Event.isValid({ title, description, date });
 
-    if (error) {
-        res.status(400).send({ error });
-        return;
-    }
-
-    var event = Event.create({ title, description, date })
-        .then(event => {
+    if (error)
+        return res.status(400).send({ error });
+     
+    var event = Event.create({ title, description, date }, req.account)
+    .then(event => {
             res.status(201).send(event);
         })
-        .catch(err => handleError(res, req, err));
-});
+    .catch(err => handleError(res, req, err));
+    }); 
 
 router.put('/:id', (req, res) => {
 
@@ -60,7 +54,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
     Event.delete(req.params.id)
         .then(info => {
-            res.status(204).send();
+            res.sendStatus(204);
         })
         .catch(err => handleError(res, req, err));
 });

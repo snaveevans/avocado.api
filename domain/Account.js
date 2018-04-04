@@ -13,8 +13,7 @@ const create = ({ name, username, password }) => {
     return new Promise((resolve, reject) => {
         bcrypt.hash(password, 10, (err, hash) => {
             if (err) {
-                reject(err);
-                return;
+                return reject(err);
             }
 
             const account = new Account({
@@ -45,17 +44,15 @@ const login = ({ username, password }) => {
     return new Promise((resolve, reject) => {
         Account.find({ username }).exec()
             .then(accounts => {
-                if (accounts.length !== 1) {
-                    reject();
-                    return;
-                }
+                if (accounts.length !== 1)
+                    return reject();
 
                 var account = accounts[0];
-                bcrypt.compare(password, account.password, function (err, res) {
+                bcrypt.compare(password, account.password, (err, res) => {
                     if (res) {
-                        resolve(sanitize(account));
+                        return resolve(sanitize(account));
                     } else {
-                        reject();
+                        return reject();
                     }
                 });
             });
@@ -76,9 +73,9 @@ const find = (conditions, projections, options) => {
             .exec()
             .then(accounts => {
                 var sanitized = accounts.map(sanitize);
-                resolve(sanitized);
+                return resolve(sanitized);
             }).catch(err => {
-                reject(err);
+                return reject(err);
             });
     });
 }
@@ -88,10 +85,10 @@ const findById = (id, projection, options) => {
         Account.findById(id, projection, options)
             .exec()
             .then(account => {
-                resolve(sanitize(account));
+                return resolve(sanitize(account));
             })
             .catch(err => {
-                reject(err);
+                return reject(err);
             })
     })
 }

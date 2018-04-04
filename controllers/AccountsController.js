@@ -1,10 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var bodyParser = require('body-parser');
 var Account = require('../domain/Account');
-
-router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json());
 
 const handleError = (res, req, err) => {
     res.status(500).send({ error: 'internal error' });
@@ -43,17 +39,5 @@ router.post('/', (req, res) => {
             res.status(201).send(account);
         })
 });
-
-// login
-router.post('/login', (req, res) => {
-    var { username, password } = req.body;
-
-    Account.login({ username, password })
-        .then(account => {
-            res.status(200).send(account);
-        }).catch(err => {
-            res.status(400).send({ error: 'incorrect username or password' });
-        });
-})
 
 module.exports = router;

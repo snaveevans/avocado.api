@@ -9,8 +9,8 @@ const RoleAccount = mongoose.model('RoleAccount', {
 
 const create = ({ role, account }) => {
     const roleAccount = new RoleAccount({
-        roleId: role.id,
-        accountId: account.id,
+        roleId: role._id,
+        accountId: account._id,
         status: 'Not Responded'
     });
 

@@ -1,11 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var bodyParser = require('body-parser');
 var Role = require('../domain/Role');
 var RoleAccount = require('../domain/RoleAccount');
-
-router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json());
 
 const handleError = (res, req, err) => {
     res.status(500).send({ error: 'internal error' });
@@ -29,7 +25,7 @@ router.get('/', (req, res) => {
 router.post('/guest', (req, res) => {
     var eventId = req.params.eventId;
 
-    Role.find({ eventId, type: 'guest' })
+    Role.find({ eventId })
         .then(guestRole => {
             RoleAccount.create({ role: guestRole, account })
                 .then(roleAccount => {
@@ -39,5 +35,15 @@ router.post('/guest', (req, res) => {
         })
         .catch(err => handleError(res, req, err));
 })
+
+// delete 5ac468e1222775985732fc59
+router.delete('/:id', (req, res) => {
+    var id = req.params.id;
+
+    RoleAccount.delete(id)
+        .then(info => {
+            return res.sendStatus(204);
+        })
+});
 
 module.exports = router;

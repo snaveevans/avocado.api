@@ -2,19 +2,21 @@ var mongoose = require('mongoose');
 var validator = require('validator');
 
 const Role = mongoose.model('Role', {
+    eventId: String,
     type: String
 });
 
-const createGuestRole = () => {
-    return create('guest');
+const createGuestRole = event => {
+    return create(event, 'guest');
 }
 
-const createHostRole = () => {
-    return create('host');
+const createHostRole = event => {
+    return create(event, 'host');
 }
 
-const create = (type) => {
+const create = (event, type) => {
     const role = new Role({
+        eventId: event._id,
         type
     });
 
