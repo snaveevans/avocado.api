@@ -37,7 +37,7 @@ router.post('/time', (req, res) => {
         return;
     }
 
-    Item.createTime({ eventId, start, end })
+    Item.createTime({ start, end }, eventId)
         .then(time => {
             res.status(201).send(time);
         })
@@ -55,7 +55,7 @@ router.post('/activity', (req, res) => {
         return;
     }
 
-    Item.createActivity({ eventId, title, description })
+    Item.createActivity({ title, description }, eventId)
         .then(activity => {
             res.status(201).send(activity);
         })
@@ -75,7 +75,7 @@ router.post('/location', (req, res) => {
 
     Address.create({ street, city, state, country })
         .then(address => {
-            Item.createLocation({ eventId, address })
+            Item.createLocation(address, eventId)
                 .then(location => {
                     res.status(201).send(location);
                 })

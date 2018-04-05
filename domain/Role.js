@@ -1,10 +1,20 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 var validator = require('validator');
+var uuid = require('uuid/v4');
+var RoleAccount = require('./RoleAccount');
 
-const Role = mongoose.model('Role', {
+const roleSchema = new Schema({
+    id: { type: String, index: true },
     eventId: String,
     type: String
 });
+
+roleSchema.methods.addAccount = function (account) {
+    return RoleAccount.create(this, account);
+};
+
+const Role = mongoose.model('Role', roleSchema);
 
 const createGuestRole = event => {
     return create(event, 'guest');
@@ -16,7 +26,8 @@ const createHostRole = event => {
 
 const create = (event, type) => {
     const role = new Role({
-        eventId: event._id,
+        id: uuid(),
+        eventId: event.id,
         type
     });
 
@@ -27,6 +38,6 @@ module.exports = {
     createGuestRole,
     createHostRole,
     find: (conditions, projections, options) => Role.find(conditions, projections, options).exec(),
-    findById: (id, projection, options) => Role.findById(id, projection, options).exec(),
-    delete: (id) => Role.findById(id).remove()
+    findById: (id, projection, options) => Role.findOne({ id }, projection, options).exec(),
+    delete: (id) => Role.findOne({ id }).remove()
 };

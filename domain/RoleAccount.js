@@ -7,10 +7,10 @@ const RoleAccount = mongoose.model('RoleAccount', {
     status: String
 });
 
-const create = ({ role, account }) => {
+const create = (role, account) => {
     const roleAccount = new RoleAccount({
-        roleId: role._id,
-        accountId: account._id,
+        roleId: role.id,
+        accountId: account.id,
         status: 'Not Responded'
     });
 
@@ -20,6 +20,6 @@ const create = ({ role, account }) => {
 module.exports = {
     create,
     find: (conditions, projections, options) => RoleAccount.find(conditions, projections, options).exec(),
-    findById: (id, projection, options) => RoleAccount.findById(id, projection, options).exec(),
-    delete: (id) => RoleAccount.findById(id).remove()
+    findById: (id, projection, options) => RoleAccount.findOne({ id }, projection, options).exec(),
+    delete: (id) => RoleAccount.findOne({ id }).remove()
 };

@@ -7,10 +7,10 @@ var fs = require('fs');
 var { jwtSecret } = require('./constants');
 var Account = require('./domain/Account');
 
-// TODO: refactor out default '_id' for uuid 'id's
-// TODO: research unquie keys for mongodb
-// TODO: research 'foreign' keys for mongodb
+// TODO: create helper class to retrieve entities from persistance
+// TODO: research unique keys for mongodb
 // TODO: research data types for mongodb
+// TODO: create global error handler
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -29,7 +29,12 @@ app.use((req, res, next) => {
                 }
             })
     }
-})
+});
+
+app.use(function (err, req, res, next) {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+});
 
 app.get('/version', (req, res) => res.status(200).send({ version: '1.0.0' }));
 

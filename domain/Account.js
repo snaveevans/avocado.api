@@ -1,30 +1,36 @@
 var mongoose = require('mongoose');
 var validator = require('validator');
 var bcrypt = require('bcrypt');
-const saltRounds = 10;
+var moment = require('moment');
+var uuid = require('uuid/v4');
 
 const Account = mongoose.model('Account', {
+    id: { type: String, index: true },
     name: String,
     username: String,
-    password: String
+    password: String,
+    date: Date,
+    isEnabled: Boolean
 });
 
 const create = ({ name, username, password }) => {
     return new Promise((resolve, reject) => {
         bcrypt.hash(password, 10, (err, hash) => {
-            if (err) {
+            if (err)
                 return reject(err);
-            }
 
             const account = new Account({
                 name,
                 username,
-                password: hash
+                password: hash,
+                date: moment().utc().toDate(),
+                isEnabled: true
             });
 
-            account.save();
-
-            resolve(sanitize(account));
+            account.save()
+                .then(savedAccount => {
+                    return resolve(sanitize(savedAccount));
+                }).catch(err => { return resolve(err); })
         });
     });
 }
@@ -61,7 +67,7 @@ const login = ({ username, password }) => {
 
 const sanitize = account => {
     return {
-        _id: account._id,
+        id: account.id,
         name: account.name,
         username: account.username
     };
@@ -82,7 +88,7 @@ const find = (conditions, projections, options) => {
 
 const findById = (id, projection, options) => {
     return new Promise((resolve, reject) => {
-        Account.findById(id, projection, options)
+        Account.findOne({ id }, projection, options)
             .exec()
             .then(account => {
                 return resolve(sanitize(account));
@@ -99,5 +105,5 @@ module.exports = {
     login,
     find,
     findById,
-    delete: (id) => Account.findById(id).remove()
+    delete: (id) => Account.findOne({ id }).remove()
 };

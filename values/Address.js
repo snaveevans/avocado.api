@@ -1,7 +1,10 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 var validator = require('validator');
+var uuid = require('uuid/v4');
 
-const Address = mongoose.model('Address', {
+const addressSchema = new Schema({
+    id: { type: String, index: true },
     type: String,
     street: String,
     city: String,
@@ -9,8 +12,11 @@ const Address = mongoose.model('Address', {
     country: String
 });
 
+const Address = mongoose.model('Address', addressSchema);
+
 const create = ({street, city, state, country}) => {
     const address = new Address({
+        id: uuid(),
         type: 'street',
         street,
         city,
