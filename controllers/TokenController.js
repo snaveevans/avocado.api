@@ -25,7 +25,7 @@ router.post('/', (req, res) => {
 
             var payload = {
                 "iss": "avocado", // issuer
-                "sub": account._id, // subject of the token (user)
+                "sub": account.id, // subject of the token (user)
                 "exp": hourFromNow.unix(), // expiration date (unix time)
                 "name": account.name,
                 "iat": now.unix() // the time the jwt was issued

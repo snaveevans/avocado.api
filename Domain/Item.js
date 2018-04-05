@@ -17,13 +17,14 @@ const itemSchema = new Schema({
     addressId: String
 });
 
-const Item = mongoose.model('Item', itemSchema);
+const Item = mongoose.model('item', itemSchema);
 
 const createTime = ({ start, end }, eventId) => {
     var startActual = moment(start, dateFormat, true);
     var endActual = moment(end, dateFormat, true);
 
     const item = new Item({
+        id: uuid(),
         type: 'time',
         eventId,
         start: startActual.utc().toDate(),
@@ -51,6 +52,7 @@ const isTimeValid = ({ start, end }) => {
 
 const createActivity = ({ title, description }, eventId) => {
     const item = new Item({
+        id: uuid(),
         type: 'activity',
         eventId,
         title,
@@ -69,6 +71,7 @@ const isActivityValid = ({ title, description }) => {
 
 const createLocation = (address, eventId) => {
     const item = new Item({
+        id: uuid(),
         type: 'location',
         eventId,
         addressId: address.id

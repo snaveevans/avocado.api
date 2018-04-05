@@ -27,7 +27,7 @@ eventSchema.methods.addGuest = function (account) {
     })
 };
 
-const Event = mongoose.model('Event', eventSchema);
+const Event = mongoose.model('event', eventSchema);
 
 const create = ({ title, description, date }, account) => {
     return new Promise((resolve, reject) => {

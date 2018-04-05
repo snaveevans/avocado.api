@@ -14,7 +14,7 @@ roleSchema.methods.addAccount = function (account) {
     return RoleAccount.create(this, account);
 };
 
-const Role = mongoose.model('Role', roleSchema);
+const Role = mongoose.model('role', roleSchema);
 
 const createGuestRole = event => {
     return create(event, 'guest');

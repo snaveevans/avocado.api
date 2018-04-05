@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var validator = require('validator');
 
-const RoleAccount = mongoose.model('RoleAccount', {
+const RoleAccount = mongoose.model('roleaccount', {
     roleId: String,
     accountId: String,
     status: String

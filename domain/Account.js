@@ -1,10 +1,11 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 var validator = require('validator');
 var bcrypt = require('bcrypt');
 var moment = require('moment');
 var uuid = require('uuid/v4');
 
-const Account = mongoose.model('Account', {
+const accountSchema = new Schema({
     id: { type: String, index: true },
     name: String,
     username: String,
@@ -13,6 +14,8 @@ const Account = mongoose.model('Account', {
     isEnabled: Boolean
 });
 
+const Account = mongoose.model('account', accountSchema);
+
 const create = ({ name, username, password }) => {
     return new Promise((resolve, reject) => {
         bcrypt.hash(password, 10, (err, hash) => {
@@ -20,6 +23,7 @@ const create = ({ name, username, password }) => {
                 return reject(err);
 
             const account = new Account({
+                id: uuid(),
                 name,
                 username,
                 password: hash,
@@ -105,5 +109,5 @@ module.exports = {
     login,
     find,
     findById,
-    delete: (id) => Account.findOne({ id }).remove()
+    delete: id => Account.findOne({ id }).remove()
 };

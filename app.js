@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 app.use(expressJwt({
     secret: jwtSecret
-}).unless({ path: ['/token', '/version'] }));
+}).unless({ path: ['/token', '/version', '/accounts'] }));
 
 app.use((req, res, next) => {
     if (req.user && req.user.sub) {
@@ -22,10 +22,12 @@ app.use((req, res, next) => {
             .then(account => {
                 if (account) {
                     req.account = account;
-                    next();
                 }
+                return next();
             })
     }
+    else
+        return next();
 });
 
 app.use(function (err, req, res, next) {
