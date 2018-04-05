@@ -8,9 +8,6 @@ var { jwtSecret } = require('./constants');
 var Account = require('./domain/Account');
 
 // TODO: create helper class to retrieve entities from persistance
-// TODO: research unique keys for mongodb
-// TODO: research data types for mongodb
-// TODO: create global error handler
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
