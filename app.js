@@ -1,9 +1,11 @@
 var express = require('express');
 var app = express();
-var db = require('./db');
 var bodyParser = require('body-parser');
 var expressJwt = require('express-jwt');
 var fs = require('fs');
+var Promise = require("bluebird");
+
+var db = require('./db');
 var { jwtSecret } = require('./constants');
 var Account = require('./domain/Account');
 
@@ -15,6 +17,14 @@ app.use(bodyParser.json());
 app.use(expressJwt({
     secret: jwtSecret
 }).unless({ path: ['/token', '/version', '/accounts'] }));
+
+app.use((req, res, next) => {
+    Promise.onPossiblyUnhandledRejection(error => {
+        console.error(error);
+        res.status(500).send({ error: "well i tried" });
+    })
+    next();
+})
 
 app.use((req, res, next) => {
     if (req.user && req.user.sub) {
@@ -30,11 +40,6 @@ app.use((req, res, next) => {
         return next();
 });
 
-app.use(function (err, req, res, next) {
-    console.error(err.stack)
-    res.status(500).send('Something broke!')
-});
-
 app.get('/version', (req, res) => res.status(200).send({ version: '1.0.0' }));
 
 var tokenController = require('./controllers/TokenController');
@@ -46,5 +51,14 @@ app.use('/token', tokenController);
 app.use('/events', eventsController);
 app.use('/addresses', addressController);
 app.use('/accounts', accountsController);
+
+app.use(function (req, res, next) {
+    res.status(404).send({ error: "Could you come over here?" })
+  })
+
+app.use(function (err, req, res, next) {
+    console.error(err);
+    res.status(500).send({ error: "You've made your point." });
+});
 
 module.exports = app;

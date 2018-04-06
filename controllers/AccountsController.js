@@ -19,8 +19,7 @@ router.get('/', (req, res) => {
 //     Account.delete(req.params.id)
 //         .then(info => {
 //             res.status(204).send();
-//         })
-//         .catch(err => handleError(res, req, err));
+//         });
 // })
 
 // create account

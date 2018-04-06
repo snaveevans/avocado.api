@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 var validator = require('validator');
 var uuid = require('uuid/v4');
 var RoleAccount = require('./RoleAccount');
+var Promise = require("bluebird");
 
 const roleSchema = new Schema({
     id: { type: String, index: true },
@@ -12,6 +13,17 @@ const roleSchema = new Schema({
 
 roleSchema.methods.addAccount = function (account) {
     return RoleAccount.create(this, account);
+};
+
+roleSchema.methods.hasAccount = function (account) {
+    var roleId = this.id;
+    var accountId = account.id;
+    return new Promise((resolve, reject) => {
+        RoleAccount.findOne({ roleId, accountId })
+            .then(roleAccount => {
+                return resolve(roleAccount != null);
+            });
+    })
 };
 
 const Role = mongoose.model('role', roleSchema);

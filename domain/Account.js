@@ -4,6 +4,7 @@ var validator = require('validator');
 var bcrypt = require('bcrypt');
 var moment = require('moment');
 var uuid = require('uuid/v4');
+var Promise = require("bluebird");
 
 const accountSchema = new Schema({
     id: { type: String, index: true },
@@ -34,7 +35,7 @@ const create = ({ name, username, password }) => {
             account.save()
                 .then(savedAccount => {
                     return resolve(sanitize(savedAccount));
-                }).catch(err => { return resolve(err); })
+                });
         });
     });
 }
@@ -84,8 +85,6 @@ const find = (conditions, projections, options) => {
             .then(accounts => {
                 var sanitized = accounts.map(sanitize);
                 return resolve(sanitized);
-            }).catch(err => {
-                return reject(err);
             });
     });
 }
@@ -96,10 +95,7 @@ const findById = (id, projection, options) => {
             .exec()
             .then(account => {
                 return resolve(sanitize(account));
-            })
-            .catch(err => {
-                return reject(err);
-            })
+            });
     })
 }
 

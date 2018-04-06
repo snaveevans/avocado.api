@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var validator = require('validator');
+var Promise = require("bluebird");
 
 const RoleAccount = mongoose.model('roleaccount', {
     roleId: String,
@@ -17,9 +18,19 @@ const create = (role, account) => {
     return roleAccount.save();
 }
 
+const hasAccess = (eventId, accountId) => {
+    return new Promise((resolve, reject) => {
+        RoleAccount.findOne({ eventId, accountId })
+            .then(roleAccount => {
+                var exists = roleAccount !== undefined;
+                return resolve(exists);
+            });
+    })
+}
+
 module.exports = {
     create,
+    hasAccess,
     find: (conditions, projections, options) => RoleAccount.find(conditions, projections, options).exec(),
-    findById: (id, projection, options) => RoleAccount.findOne({ id }, projection, options).exec(),
-    delete: (id) => RoleAccount.findOne({ id }).remove()
+    findOne: (conditions, projections, options) => RoleAccount.findOne(conditions, projections, options).exec()
 };

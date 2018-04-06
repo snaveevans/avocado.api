@@ -15,15 +15,13 @@ router.get('/', (req, res) => {
         .then(items => {
             res.status(200).send(items);
         })
-        .catch(err => handleError(res, req, err));
 });
 
 router.get('/:id', (req, res) => {
     Item.findById(req.params.id)
         .then(item => {
             res.status(200).send(item);
-        })
-        .catch(err => handleError(res, req, err));
+        });
 });
 
 router.post('/time', (req, res) => {
@@ -40,8 +38,7 @@ router.post('/time', (req, res) => {
     Item.createTime({ start, end }, eventId)
         .then(time => {
             res.status(201).send(time);
-        })
-        .catch(err => handleError(res, req, err));
+        });
 });
 
 router.post('/activity', (req, res) => {
@@ -58,8 +55,7 @@ router.post('/activity', (req, res) => {
     Item.createActivity({ title, description }, eventId)
         .then(activity => {
             res.status(201).send(activity);
-        })
-        .catch(err => handleError(res, req, err));
+        });
 });
 
 router.post('/location', (req, res) => {
@@ -78,18 +74,15 @@ router.post('/location', (req, res) => {
             Item.createLocation(address, eventId)
                 .then(location => {
                     res.status(201).send(location);
-                })
-                .catch(err => handleError(res, req, err));
-        })
-        .catch(err => handleError(res, req, err));
+                });
+        });
 });
 
 router.delete('/:id', (req, res) => {
     Item.delete(req.params.id)
         .then(info => {
             res.status(204).send(info);
-        })
-        .catch(err => handleError(res, req, err));
+        });
 })
 
 module.exports = router;
