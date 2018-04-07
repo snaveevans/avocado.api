@@ -1,109 +1,105 @@
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var validator = require('validator');
+var { Schema } = mongoose;
 var bcrypt = require('bcrypt');
 var moment = require('moment');
 var uuid = require('uuid/v4');
-var Promise = require("bluebird");
+var Promise = require('bluebird');
+var { isNullOrEmpty } = require('../validator');
 
 const accountSchema = new Schema({
-    id: { type: String, index: true },
-    name: String,
-    username: String,
-    password: String,
     date: Date,
-    isEnabled: Boolean
+    id: {
+        index: true,
+        type: String
+    },
+    isEnabled: Boolean,
+    name: String,
+    password: String,
+    username: String
 });
 
 const Account = mongoose.model('account', accountSchema);
 
-const create = ({ name, username, password }) => {
-    return new Promise((resolve, reject) => {
+const sanitize = account => ({
+    id: account.id,
+    name: account.name,
+    username: account.username
+});
+
+const create = ({ name, password, username }) =>
+    new Promise((resolve, reject) =>
         bcrypt.hash(password, 10, (err, hash) => {
             if (err)
                 return reject(err);
 
             const account = new Account({
+                date: moment()
+                    .utc()
+                    .toDate(),
                 id: uuid(),
+                isEnabled: true,
                 name,
-                username,
                 password: hash,
-                date: moment().utc().toDate(),
-                isEnabled: true
+                username
             });
 
             account.save()
-                .then(savedAccount => {
-                    return resolve(sanitize(savedAccount));
-                });
-        });
-    });
-}
+                .then(savedAccount => resolve(sanitize(savedAccount)));
+        }));
 
 const isValid = ({ name, username, password }) => {
-    if (name == null || validator.isEmpty(name))
+    if (isNullOrEmpty(name))
         return 'name must have a value';
-    if (username == null || validator.isEmpty(username))
+    if (isNullOrEmpty(username))
         return 'username must have a value';
-    if (password == null || validator.isEmpty(password))
+    if (isNullOrEmpty(password))
         return 'password must have a value';
     if (password.length < 10)
         return 'password must be at least 10';
 }
 
-const login = ({ username, password }) => {
-    return new Promise((resolve, reject) => {
+const login = ({ password, username }) =>
+    new Promise((resolve, reject) => {
         Account.find({ username }).exec()
             .then(accounts => {
                 if (accounts.length !== 1)
-                    return reject();
+                    return reject(new Error('username or password incorrect'));
+                var [account] = accounts;
 
-                var account = accounts[0];
                 bcrypt.compare(password, account.password, (err, res) => {
+                    if (err)
+                        return reject(err);
                     if (res) {
                         return resolve(sanitize(account));
-                    } else {
-                        return reject();
                     }
+                    return reject(new Error('username or password incorrect'));
                 });
             });
-    })
-}
+    });
 
-const sanitize = account => {
-    return {
-        id: account.id,
-        name: account.name,
-        username: account.username
-    };
-}
-
-const find = (conditions, projections, options) => {
-    return new Promise((resolve, reject) => {
+const find = (conditions, projections, options) =>
+    new Promise(resolve => {
         Account.find(conditions, projections, options)
             .exec()
             .then(accounts => {
                 var sanitized = accounts.map(sanitize);
+
                 return resolve(sanitized);
             });
     });
-}
 
-const findById = (id, projection, options) => {
-    return new Promise((resolve, reject) => {
+const findById = (id, projection, options) =>
+    new Promise(resolve => {
         Account.findOne({ id }, projection, options)
             .exec()
-            .then(account => {
-                return resolve(sanitize(account));
-            });
+            .then(account => resolve(sanitize(account)));
     })
-}
 
 module.exports = {
     create,
-    isValid,
-    login,
+    delete: id => Account.findOne({ id }).remove(),
     find,
     findById,
-    delete: id => Account.findOne({ id }).remove()
+    isValid,
+    login
 };

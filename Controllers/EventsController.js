@@ -1,18 +1,18 @@
 var express = require('express');
 var router = express.Router();
 var Event = require('../domain/Event');
-var RoleAccount = require('../domain/RoleAccount');
 
-// if event id exists ensure the user has access to the event
+// Authorize event ids
 router.use((req, res, next) => {
-    var path = req.path;
+    var { path } = req;
+
     if (path === '/') {
         return next();
     }
     var sections = path.split('/');
 
     if (sections.length >= 2) {
-        var eventId = sections[1];
+        var [, eventId] = sections;
 
         if (!req.account)
             return res.sendStatus(401);
@@ -31,13 +31,14 @@ router.use((req, res, next) => {
                         return res.sendStatus(401);
                     })
             })
-    } else {
-        next();
     }
+    else
+        return next();
 });
 
 var itemsController = require('./ItemsController');
 var rolesController = require('./RolesController');
+
 router.use('/:eventId/items', itemsController);
 router.use('/:eventId/roles', rolesController);
 
@@ -51,36 +52,37 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     Event.findById(req.params.id)
         .then(event => {
-            if (!event)
-                res.status(400).send({ error: 'no event' });
-            else
-                res.status(200).send(event);
+            if (event)
+                return res.status(200).send(event);
+            return res.status(400).send({ error: 'no event' });
         })
 });
 
 router.post('/', (req, res) => {
     var { title, description, date } = req.body;
 
-    var error = Event.isValid({ title, description, date });
+    var error = Event.isValid({
+        date,
+        description,
+        title
+    });
 
     if (error)
         return res.status(400).send({ error });
 
-    var event = Event.create({ title, description, date }, req.account)
+    Event.create({
+        date,
+        description,
+        title
+    }, req.account)
         .then(event => {
             res.status(201).send(event);
         })
 });
 
-router.put('/:id', (req, res) => {
-
-});
-
 router.delete('/:id', (req, res) => {
     Event.delete(req.params.id)
-        .then(info => {
-            res.sendStatus(204);
-        })
+        .then(() => res.sendStatus(204));
 });
 
 module.exports = router;

@@ -1,20 +1,23 @@
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var { Schema } = mongoose;
 var moment = require('moment');
-var validator = require('validator');
+var { isNullOrEmpty, isNullOrUndefined } = require('../validator');
 var uuid = require('uuid/v4');
 const dateFormat = 'YYYY-MM-DDTHH:mm:ss Z';
 
 const itemSchema = new Schema({
-    id: { type: String, index: true },
-    type: String,
-    eventId: String,
-    start: Date,
-    end: Date,
+    addressId: String,
     created: String,
-    title: String,
     description: String,
-    addressId: String
+    end: Date,
+    eventId: String,
+    id: {
+        index: true,
+        type: String
+    },
+    start: Date,
+    title: String,
+    type: String
 });
 
 const Item = mongoose.model('item', itemSchema);
@@ -24,77 +27,85 @@ const createTime = ({ start, end }, eventId) => {
     var endActual = moment(end, dateFormat, true);
 
     const item = new Item({
-        id: uuid(),
-        type: 'time',
+        end: endActual
+            .utc()
+            .toDate(),
         eventId,
-        start: startActual.utc().toDate(),
-        end: endActual.utc().toDate()
+        id: uuid(),
+        start: startActual
+            .utc()
+            .toDate(),
+        type: 'time'
     });
 
     return item.save();
 }
 
 const isTimeValid = ({ start, end }) => {
-    if (start == null || validator.isEmpty(start))
+    if (isNullOrEmpty(start))
         return 'start must have a value';
-    if (end == null || validator.isEmpty(end))
+    if (isNullOrEmpty(end))
         return 'end must have a value';
-
     var startActual = moment(start, dateFormat, true);
 
     if (!startActual.isValid())
         return 'start is not a valid date'
-
     var endActual = moment(end, dateFormat, true);
+
     if (!endActual.isValid())
         return 'start is not a valid date'
 }
 
-const createActivity = ({ title, description }, eventId) => {
+const createActivity = ({ description, title }, eventId) => {
     const item = new Item({
-        id: uuid(),
-        type: 'activity',
+        description,
         eventId,
+        id: uuid(),
         title,
-        description
+        type: 'activity'
     });
 
     return item.save();
 }
 
-const isActivityValid = ({ title, description }) => {
-    if (title == null || validator.isEmpty(title))
+const isActivityValid = ({ description, title }) => {
+    if (isNullOrEmpty(title))
         return 'title must have a value';
-    if (description == null || validator.isEmpty(description))
+    if (isNullOrEmpty(description))
         return 'description must have a value';
 }
 
 const createLocation = (address, eventId) => {
     const item = new Item({
-        id: uuid(),
-        type: 'location',
+        addressId: address.id,
         eventId,
-        addressId: address.id
+        id: uuid(),
+        type: 'location'
     });
 
     return item.save();
 }
 
 const isLocationValid = ({ address }) => {
-    if (address == null)
+    if (isNullOrUndefined(address))
         return 'address must have a value';
-    if (address._id == null || validator.isEmpty(address._id))
+    if (isNullOrEmpty(address.id))
         return "address doesn't have an id";
 }
 
 module.exports = {
-    createTime,
-    isTimeValid,
     createActivity,
-    isActivityValid,
     createLocation,
+    createTime,
+    delete: id => Item.findOne({ id })
+        .remove(),
+    find: (conditions, projections, options) => Item
+        .find(conditions, projections, options)
+        .exec(),
+    findById: (id, projection, options) => Item
+        .findOne({ id }, projection, options)
+        .exec(),
+    isActivityValid,
     isLocationValid,
-    find: (conditions, projections, options) => Item.find(conditions, projections, options).exec(),
-    findById: (id, projection, options) => Item.findOne({ id }, projection, options).exec(),
-    delete: (id) => Item.findOne({ id }).remove()
+    isTimeValid
 }

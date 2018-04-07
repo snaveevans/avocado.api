@@ -3,26 +3,23 @@ var router = express.Router({ mergeParams: true });
 var Role = require('../domain/Role');
 var RoleAccount = require('../domain/RoleAccount');
 
-const handleError = (req, res, err) => {
-    res.status(500).send({ error: 'internal error' });
-    console.log('error in roles controller');
-    console.log(err);
-}
-
 router.get('/', (req, res) => {
-    var eventId = req.params.eventId;
+    var { eventId } = req.params;
+
     Role.find({ eventId })
-        .then(roles => {
-            return res.status(200).send(roles);
-        });
+        .then(roles => res.status(200).send(roles));
 });
 
 router.post('/guest', (req, res) => {
-    var eventId = req.params.eventId;
+    var { eventId } = req.params;
+    var { account } = req;
 
     Role.find({ eventId })
         .then(guestRole => {
-            RoleAccount.create({ role: guestRole, account })
+            RoleAccount.create({
+                account,
+                role: guestRole
+            })
                 .then(roleAccount => {
                     res.status(201).send(roleAccount);
                 });
@@ -30,12 +27,10 @@ router.post('/guest', (req, res) => {
 })
 
 router.delete('/:id', (req, res) => {
-    var id = req.params.id;
+    var { id } = req.params;
 
     RoleAccount.delete(id)
-        .then(info => {
-            return res.sendStatus(204);
-        })
+        .then(() => res.sendStatus(204))
 });
 
 module.exports = router;

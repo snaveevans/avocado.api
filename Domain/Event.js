@@ -1,47 +1,57 @@
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var { Schema } = mongoose;
 var moment = require('moment');
-var validator = require('validator');
 var Role = require('./Role');
 var RoleAccount = require('./RoleAccount');
 var uuid = require('uuid/v4');
 //  2018-03-22T18:45:29.744Z
 const dateFormat = 'YYYY-MM-DDTHH:mm:ss Z';
 var Promise = require("bluebird");
+var { isNullOrEmpty } = require('../validator');
 
 const eventSchema = new Schema({
-    id: { type: String, index: true },
-    title: String,
-    description: String,
+    created: Date,
     date: Date,
-    created: Date
+    description: String,
+    id: {
+        index: true,
+        type: String
+    },
+    title: String
 });
 
 eventSchema.methods.addGuest = function (account) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         var eventId = this.id;
-        Role.findOne({ eventId, type: 'guest' })
+        var conditions = {
+            eventId,
+            type: 'guest'
+        };
+
+        Role.findOne(conditions)
             .then(guestRole => {
                 guestRole.addAccount(account)
-                    .then(roleAccount => {
-                        return resolve(roleAccount);
-                    });
+                    .then(roleAccount => resolve(roleAccount));
             });
     })
 };
 
 eventSchema.methods.hasAccess = function (account) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         var eventId = this.id;
+
         Role.find({ eventId })
             .then(roles => {
-                var rolePromises = roles.map(role => {
-                    return role.hasAccount(account);
-                });
+                var rolePromises = roles
+                    .map(role => role.hasAccount(account));
+
                 Promise.all(rolePromises)
                     .then(results => {
-                        var hasAccess = results.filter(hasAccess => hasAccess === true).length > 0;
-                        return resolve(hasAccess);
+                        var hasRoleAccount = results
+                            .filter(item => item === true)
+                            .length > 0;
+
+                        return resolve(hasRoleAccount);
                     });
             });
     })
@@ -49,69 +59,78 @@ eventSchema.methods.hasAccess = function (account) {
 
 const Event = mongoose.model('event', eventSchema);
 
-const create = ({ title, description, date }, account) => {
-    return new Promise((resolve, reject) => {
+const create = ({ title, description, date }, account) =>
+    new Promise(resolve => {
         var dateActual = moment(date, dateFormat, true);
 
         const event = new Event({
-            id: uuid(),
-            title,
+            created: moment()
+                .utc()
+                .toDate(),
+            date: dateActual
+                .utc()
+                .toDate(),
             description,
-            date: dateActual.utc().toDate(),
-            created: moment().utc().toDate()
+            id: uuid(),
+            title
         });
 
         event.save()
             .then(savedEvent => {
                 var hostRolePromise = Role.createHostRole(savedEvent);
                 var guestRolePromise = Role.createGuestRole(savedEvent);
+
                 Promise.all([hostRolePromise, guestRolePromise])
                     .then(allData => {
-                        var hostRole = allData[0];
+                        var [hostRole] = allData;
+
                         hostRole.addAccount(account)
-                            .then(roleAccount => {
-                                return resolve(savedEvent);
-                            });
+                            .then(() => resolve(savedEvent));
                     });
             });
     })
-}
 
 const isValid = ({ title, description, date }) => {
-    if (title == null || validator.isEmpty(title))
+    if (isNullOrEmpty(title))
         return 'title must have a value';
-    if (description == null || validator.isEmpty(description))
+    if (isNullOrEmpty(description))
         return 'description must have a value';
-    if (date == null || validator.isEmpty(date))
+    if (isNullOrEmpty(date))
         return 'date must have a value';
 
     var dateActual = moment(date, dateFormat, true);
+
     if (!dateActual.isValid())
         return 'date is not a valid date';
 }
 
-const getAllEvents = account => {
-    return new Promise((resolve, reject) => {
+const getAllEvents = account =>
+    new Promise(resolve => {
         RoleAccount.find({ accountId: account.id })
             .then(roleAccounts => {
-                var roleIds = roleAccounts.map(i => i.roleId);
+                var roleIds = roleAccounts
+                    .map(roleAccount => roleAccount.roleId);
+
                 Role.find({ "id": { $in: roleIds } })
                     .then(roles => {
-                        var eventIds = roles.map(i => i.eventId);
+                        var eventIds = roles.map(role => role.eventId);
+
                         Event.find({ "id": { $in: eventIds } }).exec()
-                            .then(events => {
-                                return resolve(events);
-                            });
+                            .then(events => resolve(events));
                     });
             });
     });
-}
 
 module.exports = {
     create,
-    isValid,
+    delete: id => Event.findOne({ id })
+        .remove(),
+    find: (conditions, projections, options) => Event
+        .find(conditions, projections, options)
+        .exec(),
+    findById: (id, projection, options) => Event
+        .findOne({ id }, projection, options)
+        .exec(),
     getAllEvents,
-    find: (conditions, projections, options) => Event.find(conditions, projections, options).exec(),
-    findById: (id, projection, options) => Event.findOne({ id }, projection, options).exec(),
-    delete: (id) => Event.findOne({ id }).remove()
+    isValid
 };

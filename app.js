@@ -2,14 +2,14 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var expressJwt = require('express-jwt');
-var fs = require('fs');
 var Promise = require("bluebird");
-
 var db = require('./db');
 var { jwtSecret } = require('./constants');
 var Account = require('./domain/Account');
 
 // TODO: create helper class to retrieve entities from persistance
+
+db.initialize();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -52,11 +52,11 @@ app.use('/events', eventsController);
 app.use('/addresses', addressController);
 app.use('/accounts', accountsController);
 
-app.use(function (req, res, next) {
+app.use(function (req, res) {
     res.status(404).send({ error: "Could you come over here?" })
-  })
+})
 
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     console.error(err);
     res.status(500).send({ error: "You've made your point." });
 });

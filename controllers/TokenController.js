@@ -5,38 +5,37 @@ var { jwtSecret } = require('../constants');
 var jwt = require('jwt-simple');
 var moment = require('moment');
 
-var test = {
-    // "jti": "", // unique identifer 
-    // "iss": "", // issuer
-    "sub": "1234567890", // subject of the token (user)
-    // "aud": "", // audience
-    "exp": "", // expiration date (unix time)
-    "name": "John Doe",
-    "iat": 1516239022 // the time the jwt was issued
-}
-
 router.post('/', (req, res) => {
-    var { username, password } = req.body;
+    var { password, username } = req.body;
 
-    Account.login({ username, password })
+    Account.login({
+        password,
+        username
+    })
         .then(account => {
             var now = moment();
-            var hourFromNow = now.clone().add(7, 'd'); // 7 day token
+            // 7 day token
+            var hourFromNow = now
+                .clone()
+                .add(7, 'd');
 
             var payload = {
-                "iss": "avocado", // issuer
-                "sub": account.id, // subject of the token (user)
-                "exp": hourFromNow.unix(), // expiration date (unix time)
+                // Expiration date (unix time)
+                "exp": hourFromNow.unix(),
+                // The time the jwt was issued
+                "iat": now.unix(),
+                // Issuer
+                "iss": "avocado",
                 "name": account.name,
-                "iat": now.unix() // the time the jwt was issued
+                // Subject of the token (user)
+                "sub": account.id
             }
 
             var token = jwt.encode(payload, jwtSecret);
+
             return res.status(200).send(token);
-        }).catch(err => {
-            return res.status(400)
-                .send({ error: 'incorrect username or password' });
-        });
+        })
+        .catch(error => res.status(400).send({ error }));
 })
 
 module.exports = router;

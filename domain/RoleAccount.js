@@ -1,36 +1,42 @@
 var mongoose = require('mongoose');
-var validator = require('validator');
 var Promise = require("bluebird");
 
 const RoleAccount = mongoose.model('roleaccount', {
-    roleId: String,
     accountId: String,
+    roleId: String,
     status: String
 });
 
 const create = (role, account) => {
     const roleAccount = new RoleAccount({
-        roleId: role.id,
         accountId: account.id,
+        roleId: role.id,
         status: 'Not Responded'
     });
 
     return roleAccount.save();
 }
 
-const hasAccess = (eventId, accountId) => {
-    return new Promise((resolve, reject) => {
-        RoleAccount.findOne({ eventId, accountId })
+const hasAccess = (eventId, accountId) =>
+    new Promise(resolve => {
+        RoleAccount.findOne({
+            accountId,
+            eventId
+        })
             .then(roleAccount => {
-                var exists = roleAccount !== undefined;
-                return resolve(exists);
+                var exists = Boolean(roleAccount);
+
+                return resolve(!exists);
             });
     })
-}
 
 module.exports = {
     create,
-    hasAccess,
-    find: (conditions, projections, options) => RoleAccount.find(conditions, projections, options).exec(),
-    findOne: (conditions, projections, options) => RoleAccount.findOne(conditions, projections, options).exec()
+    find: (conditions, projections, options) => RoleAccount
+        .find(conditions, projections, options)
+        .exec(),
+    findOne: (conditions, projections, options) => RoleAccount
+        .findOne(conditions, projections, options)
+        .exec(),
+    hasAccess
 };

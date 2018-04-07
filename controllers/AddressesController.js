@@ -6,9 +6,8 @@ router.get('/:id', (req, res) => {
     Address.findById(req.params.id)
         .then(address => {
             if (!address)
-                res.status(400).send({ error: 'no address' });
-            else
-                res.status(200).send(address);
+                return res.status(400).send({ error: 'no address' });
+            return res.status(200).send(address);
         })
 });
 

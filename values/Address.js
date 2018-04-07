@@ -1,47 +1,54 @@
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var { Schema } = mongoose;
 var validator = require('validator');
 var uuid = require('uuid/v4');
 
 const addressSchema = new Schema({
-    id: { type: String, index: true },
-    type: String,
-    street: String,
     city: String,
+    country: String,
+    id: {
+        index: true,
+        type: String
+    },
     state: String,
-    country: String
+    street: String,
+    type: String
 });
 
 const Address = mongoose.model('Address', addressSchema);
 
-const create = ({ street, city, state, country }) => {
+const create = ({ city, country, state, street }) => {
     const address = new Address({
-        id: uuid(),
-        type: 'street',
-        street,
         city,
+        country,
+        id: uuid(),
         state,
-        country
+        street,
+        type: 'street'
     });
 
     return address.save();
 }
 
-const isValid = ({ street, city, state, country }) => {
-    if (street == null || validator.isEmpty(street))
+const isValid = ({ city, country, state, street }) => {
+    if (!street || validator.isEmpty(street))
         return 'street must have a value';
-    if (city == null || validator.isEmpty(city))
+    if (!city || validator.isEmpty(city))
         return 'city must have a value';
-    if (state == null || validator.isEmpty(state))
+    if (!state || validator.isEmpty(state))
         return 'state must have a value';
-    if (country == null || validator.isEmpty(country))
+    if (!country || validator.isEmpty(country))
         return 'country must have a value';
 }
 
 module.exports = {
     create,
-    isValid,
-    find: (conditions, projections, options) => Address.find(conditions, projections, options).exec(),
-    findById: (id, projection, options) => Address.findOne({ id }, projection, options).exec(),
-    delete: id => Address.findOne({ id }).remove()
+    delete: id => Address.findOne({ id }).remove(),
+    find: (conditions, projections, options) => Address
+        .find(conditions, projections, options)
+        .exec(),
+    findById: (id, projection, options) => Address
+        .findOne({ id }, projection, options)
+        .exec(),
+    isValid
 };
