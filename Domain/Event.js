@@ -17,8 +17,25 @@ const eventSchema = new Schema({
         index: true,
         type: String
     },
-    title: String
+    title: String,
+    votes: [String]
 });
+
+eventSchema.methods.addVote = function (account) {
+    if (this.votes.filter(vote => vote === account.id)
+        .length === 0)
+        this.votes.push(account.id);
+
+    return this;
+}
+
+eventSchema.methods.removeVote = function (account) {
+    var index = this.votes.indexOf(account.id);
+
+    if (index !== -1)
+        this.votes.splice(index, 1);
+    return this;
+}
 
 eventSchema.methods.addGuest = function (account) {
     return new Promise(resolve => {
@@ -72,7 +89,8 @@ const create = ({ title, description, date }, account) =>
                 .toDate(),
             description,
             id: uuid(),
-            title
+            title,
+            votes: []
         });
 
         event.save()

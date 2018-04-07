@@ -17,8 +17,25 @@ const itemSchema = new Schema({
     },
     start: Date,
     title: String,
-    type: String
+    type: String,
+    votes: [String]
 });
+
+itemSchema.methods.addVote = function (account) {
+    if (this.votes.filter(vote => vote === account.id)
+        .length === 0)
+        this.votes.push(account.id);
+
+    return this;
+}
+
+itemSchema.methods.removeVote = function (account) {
+    var index = this.votes.indexOf(account.id);
+
+    if (index !== -1)
+        this.votes.splice(index, 1);
+    return this;
+}
 
 const Item = mongoose.model('item', itemSchema);
 

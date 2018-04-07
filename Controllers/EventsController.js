@@ -85,4 +85,22 @@ router.delete('/:id', (req, res) => {
         .then(() => res.sendStatus(204));
 });
 
+router.post('/:id/votes', (req, res) => {
+    Event.findById(req.params.id)
+        .then(event => {
+            event.addVote(req.account)
+                .save()
+                .then(updatedEvent => res.status(201).send(updatedEvent.votes))
+        })
+});
+
+router.delete('/:id/votes', (req, res) => {
+    Event.findById(req.params.id)
+        .then(event => {
+            event.removeVote(req.account)
+                .save()
+                .then(() => res.sendStatus(204))
+        })
+});
+
 module.exports = router;

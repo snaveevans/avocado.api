@@ -92,6 +92,24 @@ router.delete('/:id', (req, res) => {
         .then(info => {
             res.status(204).send(info);
         });
-})
+});
+
+router.post('/:id/votes', (req, res) => {
+    Item.findById(req.params.id)
+        .then(item => {
+            item.addVote(req.account)
+                .save()
+                .then(updatedItem => res.status(201).send(updatedItem.votes))
+        })
+});
+
+router.delete('/:id/votes', (req, res) => {
+    Item.findById(req.params.id)
+        .then(item => {
+            item.removeVote(req.account)
+                .save()
+                .then(() => res.sendStatus(204))
+        })
+});
 
 module.exports = router;

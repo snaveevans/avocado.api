@@ -84,7 +84,7 @@ module.exports = {
         "id-length": "error",
         "id-match": "error",
         "implicit-arrow-linebreak": [
-            "error",
+            "warn",
             "beside"
         ],
         "indent": "off",
