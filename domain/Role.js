@@ -56,5 +56,8 @@ module.exports = {
         .exec(),
     findById: (id, projection, options) => Role
         .findOne({ id }, projection, options)
+        .exec(),
+    findOne: (conditions, projections, options) => Role
+        .findOne(conditions, projections, options)
         .exec()
 };
