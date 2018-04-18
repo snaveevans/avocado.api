@@ -1,6 +1,12 @@
 var express = require('express');
 var router = express.Router();
+var expressJwt = require('express-jwt');
 var Address = require('../values/Address');
+var { jwtSecret } = require('../constants');
+
+router.use(expressJwt({
+    secret: jwtSecret
+}));
 
 router.get('/:id', (req, res) => {
     Address.findById(req.params.id)

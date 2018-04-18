@@ -1,10 +1,8 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var expressJwt = require('express-jwt');
 var Promise = require("bluebird");
 var db = require('./db');
-var { jwtSecret } = require('./constants');
 var Account = require('./domain/Account');
 
 // TODO: create helper class to retrieve entities from persistance
@@ -13,10 +11,7 @@ db.initialize();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-app.use(expressJwt({
-    secret: jwtSecret
-}).unless({ path: ['/token', '/version', '/accounts'] }));
+app.use(express.static('client'));
 
 app.use((req, res, next) => {
     Promise.onPossiblyUnhandledRejection(error => {
@@ -24,7 +19,7 @@ app.use((req, res, next) => {
         res.status(500).send({ error: "well i tried" });
     })
     next();
-})
+});
 
 app.use((req, res, next) => {
     if (req.user && req.user.sub) {
@@ -47,13 +42,25 @@ var eventsController = require('./controllers/EventsController');
 var addressController = require('./controllers/AddressesController');
 var accountsController = require('./controllers/AccountsController');
 
-app.use('/token', tokenController);
-app.use('/events', eventsController);
-app.use('/addresses', addressController);
-app.use('/accounts', accountsController);
+app.get('/', (req, res) => {
+    return res.status(200)
+        .sendFile('index.html');
+});
+
+var apiRouter = express.Router();
+apiRouter.use('/token', tokenController);
+apiRouter.use('/events', eventsController);
+apiRouter.use('/addresses', addressController);
+apiRouter.use('/accounts', accountsController);
+
+app.use('/api', apiRouter);
 
 app.use(function (req, res) {
-    res.status(404).send({ error: "Could you come over here?" })
+    if (req.path.startsWith('/api'))
+        return res.status(404).send({ error: "This is not the page you are looking for." })
+
+    return res.status(200)
+        .sendFile('client/error.html', {root: __dirname });
 })
 
 app.use(function (err, req, res) {

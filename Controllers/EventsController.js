@@ -1,6 +1,12 @@
 var express = require('express');
 var router = express.Router();
+var expressJwt = require('express-jwt');
 var Event = require('../domain/Event');
+var { jwtSecret } = require('../constants');
+
+router.use(expressJwt({
+    secret: jwtSecret
+}));
 
 // Authorize event ids
 router.use((req, res, next) => {
