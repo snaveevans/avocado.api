@@ -21,20 +21,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use((req, res, next) => {
-    if (req.user && req.user.sub) {
-        Account.findById(req.user.sub)
-            .then(account => {
-                if (account) {
-                    req.account = account;
-                }
-                return next();
-            })
-    }
-    else
-        return next();
-});
-
 app.get('/version', (req, res) => res.status(200).send({ version: '1.0.0' }));
 
 var tokenController = require('./controllers/TokenController');

@@ -15,7 +15,7 @@ const create = (role, account) => {
     });
 
     return roleAccount.save();
-}
+};
 
 const hasAccess = (eventId, accountId) =>
     new Promise(resolve => {
@@ -28,10 +28,12 @@ const hasAccess = (eventId, accountId) =>
 
                 return resolve(!exists);
             });
-    })
+    });
 
 module.exports = {
     create,
+    delete: id => Event.findOne({ id })
+        .remove(),
     find: (conditions, projections, options) => RoleAccount
         .find(conditions, projections, options)
         .exec(),

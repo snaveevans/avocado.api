@@ -1,46 +1,14 @@
 var express = require('express');
 var router = express.Router();
-var expressJwt = require('express-jwt');
 var Event = require('../domain/Event');
-var { jwtSecret } = require('../constants');
 
-router.use(expressJwt({
-    secret: jwtSecret
-}));
+var { authorizeEvent, authorize, appendAccount } = require('../helper');
+
+router.use(authorize());
+router.use(appendAccount());
 
 // Authorize event ids
-router.use((req, res, next) => {
-    var { path } = req;
-
-    if (path === '/') {
-        return next();
-    }
-    var sections = path.split('/');
-
-    if (sections.length >= 2) {
-        var [, eventId] = sections;
-
-        if (!req.account)
-            return res.sendStatus(401);
-
-        Event.findById(eventId)
-            .then(event => {
-                if (!event)
-                    return res.sendStatus(401);
-
-                event.hasAccess(req.account)
-                    .then(hasAccess => {
-                        if (hasAccess) {
-                            req.event = event;
-                            return next();
-                        }
-                        return res.sendStatus(401);
-                    })
-            })
-    }
-    else
-        return next();
-});
+router.use(authorizeEvent());
 
 var itemsController = require('./ItemsController');
 var rolesController = require('./RolesController');
