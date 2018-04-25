@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="css/site.css">
-    <link rel="stylesheet" href="css/pure-min.css" >
+    <link rel="stylesheet" href="css/pure-min.css">
 
     <script src="js/all.js"></script>
     <script src="js/fetch.js"></script>
@@ -16,109 +16,16 @@
 
     <script src="js/components/EventList.js"></script>
     <script src="js/components/EventCard.js"></script>
+    <script src="js/components/NavigationBar.js"></script>
+    <script src="js/components/ApplicationBar.js"></script>
+    <script src="js/components/ContactList.js"></script>
+    <script src="js/components/ClientApp.js"></script>
+
+    <script src="js/components/ApplicationRouter.js"></script>
 </head>
 
-<!-- <nav class="navbar fixed-top navbar-light bg-light" style="height: 50px;">
-    <a class="navbar-brand" href="#">Project Avocado</a>
-</nav> -->
-
 <body>
+    <client-app></client-app>
 </body>
-
-<script type="text/javascript">
-    window.onload = function () {
-
-        var eventList = new EventsList();
-        return document.body.appendChild(eventList);
-
-        var position, left, card, cards = document.getElementsByClassName('card');
-
-        for (position = 0; position < cards.length; position++) {
-            card = cards[position];
-
-            var percent = 83.33333 * position;
-            var padding = 10 * position;
-            left = "calc(50vw + " + percent + "% + " + padding + "px)"
-
-            card.style.position = "fixed";
-            card.style.left = left;
-            card.style.top = "50vh";
-            card.style.height = "90vh";
-            card.style.transform = "translate(-50%, -50%)";
-
-            var x = 0, y = 0, start;
-
-            card.onmousedown = function (event) {
-                start = moment();
-                x = event.clientX;
-                y = event.clientY;
-                // console.log("Start - (" + x + "," + y + ")");
-                // this.onmousemove = function (event) {
-
-                // }
-            }.bind(card);
-            card.onmouseup = function (event) {
-                // console.log("mouse up");
-                var endX = event.clientX;
-                var endY = event.clientY;
-                // console.log("End - (" + endX + "," + endY + ")");
-
-                var end = moment();
-                var duration = moment.duration(end.diff(start));
-                // console.log("Duration: " + duration);
-
-                var xDist = endX - x;
-                var yDist = endY - y;
-                //console.log("Distance - (" + xDist + "," + yDist + ")");
-
-                var isLeftMovement = false;
-                if (xDist < 0) {
-                    isLeftMovement = true;
-                    xDist *= -1;
-                }
-
-                if (xDist <= 15) {
-                    // allow click
-                    console.log("no movement");
-                    return;
-                }
-
-                var captureClick = function (e) {
-                    e.stopPropagation();
-                    // renable click
-                    this.removeEventListener('click', captureClick, true);
-                }
-
-                // disable click
-                this.parentElement.addEventListener('click', captureClick, true);
-
-                var movement = isLeftMovement ?
-                    "left" :
-                    "right";
-
-                var speed = xDist / duration;
-                console.log("Moving: " + movement + " at " + speed + "px/m");
-
-                event.preventDefault();
-                x = 0, y = 0;
-            }.bind(card);
-        }
-    }
-</script>
-
-<!-- <nav class="navbar fixed-bottom navbar-light bg-light" style="height: 45px;">
-    <div class="nav-buttons">
-        <i class="far fa-calendar-check"></i>
-        <div>Upcoming</div>
-    </div>
-    <div class="nav-buttons">
-        <i class="far fa-calendar-alt"></i>
-        <div>My Events</div>
-    </div>
-    <div class="nav-buttons">
-        <i class="fas fa-users"></i>
-        <div>Contacts</div>
-    </div>
-</nav> -->
 
 </html>

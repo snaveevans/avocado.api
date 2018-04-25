@@ -1,19 +1,44 @@
 class EventsList extends HTMLElement {
     constructor() {
         super();
-
-        this.selectedEventId = "04b67765-f552-4da3-bb2e-5e843701601f";
+    }
+    connectedCallback() {
+        this.selectedEventId = '04b67765-f552-4da3-bb2e-5e843701601f';
         this.events = [];
         this.cards = {};
 
-        var container = document.createElement('div');
-        container.style.position = "fixed";
-        container.style.left = "0px";
-        container.style.right = "0px";
-        container.style.top = "50vh";
-        container.style.height = "90vh";
-        container.style.transform = "translate(0, -50%)";
-        this.appendChild(container);
+        var filter = 'upcoming';
+
+        if (this.hasAttribute('filter'))
+            filter = this.getAttribute('filter');
+
+        this.style.display = 'table';
+        this.style.width = '100%';
+        this.style.height = 'calc(100vh - 95px)';
+        this.style.backgroundImage = 'linear-gradient(-135deg, #274B75 0%, #253247 100%)';
+
+        var titleContainer = document.createElement('div');
+        titleContainer.style.display = 'table-caption';
+        titleContainer.style.color = '#FFFFFF';
+        this.appendChild(titleContainer);
+
+        var titleText = filter === 'mine' ?
+            'My Events' :
+            'Upcoming Events';
+        var title = document.createElement('div');
+        title.className = 'h3';
+        title.style.margin = '12px 10px 13px 10px';
+        title.appendChild(document.createTextNode(titleText));
+        titleContainer.appendChild(title);
+
+        var rowGroup = document.createElement('div');
+        rowGroup.style.display = 'table-row-group';
+        this.appendChild(rowGroup);
+
+        var eventContainer = document.createElement('div');
+        eventContainer.style.display = 'table-row';
+        eventContainer.style.paddingBottom = '20px';
+        rowGroup.appendChild(eventContainer);
 
         var indexById = function (id) {
             return function (event) {
@@ -21,86 +46,9 @@ class EventsList extends HTMLElement {
             }
         }
 
-        var onMouseMoveHandler = null;
-        var getOnMouseMoveHandler = function (x) {
-            return function (event) {
-                var endX = event.clientX;
-                var xDist = endX - x;
-
-                for (var i = 0; i < this.events.length; i++) {
-                    var event = this.events[i];
-                    var card = this.cards[event.id];
-                    card.move(xDist);
-                }
-            }.bind(this);
-        }.bind(this);
-
-        var disableMouseMove = function () {
-            if (onMouseMoveHandler) {
-                container.removeEventListener("mousemove", onMouseMoveHandler);
-                onMouseMoveHandler = null;
-            }
-        }
-
-        var x = 0, start;
-
-        var onMouseDownHandler = function (event) {
-            start = moment();
-            x = event.clientX;
-
-            onMouseMoveHandler = getOnMouseMoveHandler(x);
-            container.addEventListener('mousemove', onMouseMoveHandler);
-            container.addEventListener('mouseleave', disableMouseMove);
-        }
-
-        var onMouseUpHandler = function (event) {
-            disableMouseMove();
-
-            var endX = event.clientX;
-
-            var end = moment();
-            var duration = moment.duration(end.diff(start));
-
-            var xDist = endX - x;
-
-            var isLeftMovement = false;
-            if (xDist < 0) {
-                isLeftMovement = true;
-                xDist *= -1;
-            }
-
-            if (xDist <= 15) {
-                // allow click
-                return;
-            }
-
-            var captureClick = function (e) {
-                e.stopPropagation();
-                // renable click
-                this.removeEventListener('click', captureClick, true);
-            }
-
-            // disable click
-            this.parentElement.addEventListener('click', captureClick, true);
-
-            var movement = isLeftMovement ?
-                "left" :
-                "right";
-
-            var speed = xDist / duration;
-            console.log("Moving: " + movement + " at " + speed + "px/m");
-
-            event.preventDefault();
-            x = 0;
-        }.bind(this);
-
-        container.addEventListener('mousedown', onMouseDownHandler);
-        container.addEventListener('mouseup', onMouseUpHandler);
-
         var onCardClick = function (eventId) {
-            disableMouseMove();
             if (this.selectedEventId === eventId)
-                return console.log("Open card " + eventId);
+                return console.log('Open card ' + eventId);
 
             this.selectedEventId = eventId;
             var selectedIndex = this.events.findIndex(indexById(this.selectedEventId));
@@ -115,47 +63,47 @@ class EventsList extends HTMLElement {
             }
         }.bind(this);
 
-        setTimeout(function () {
-            // get events
-            this.events = [
-                {
-                    id: "b37250a2-f3ca-42c9-9adb-cee833a9c84e",
-                    title: "LAN Party",
-                    description: "Let's all play some PUBG and some Siege!",
-                    color: "greenyellow"
-                },
-                {
-                    id: "04b67765-f552-4da3-bb2e-5e843701601f",
-                    title: "Star Wars Marathon",
-                    description: "Self-expanatory",
-                    color: "teal"
-                },
-                {
-                    id: "b956e7cb-a5ce-4574-9672-3a2941cdce49",
-                    title: "Hacknight SLC",
-                    description: "hack away at some code",
-                    color: "orange"
-                }
-            ];
-
-            var selectedIndex = this.events.findIndex(indexById(this.selectedEventId))
-
-            for (var i = 0; i < this.events.length; i++) {
-                var event = this.events[i];
-
-                var card = new EventCard(event, function () {
-                    onCardClick(this.id);
-                }.bind(event));
-
-                var eventIndex = this.events.findIndex(indexById(event.id));
-
-                var index = eventIndex - selectedIndex;
-
-                card.setOrder(index);
-                container.appendChild(card);
-                this.cards[event.id] = card;
+        // get events
+        this.events = [
+            {
+                id: 'b37250a2-f3ca-42c9-9adb-cee833a9c84e',
+                title: 'LAN Party',
+                description: "Let's all play some PUBG and some Siege!",
+                color: 'greenyellow'
+            },
+            {
+                id: '04b67765-f552-4da3-bb2e-5e843701601f',
+                title: 'Star Wars Marathon',
+                description: 'Self-expanatory',
+                color: 'teal'
+            },
+            {
+                id: 'b956e7cb-a5ce-4574-9672-3a2941cdce49',
+                title: 'Hacknight SLC',
+                description: 'hack away at some code',
+                color: 'orange'
             }
-        }.bind(this), 500);
+        ];
+
+        var selectedIndex = this.events.findIndex(indexById(this.selectedEventId))
+
+        for (var i = 0; i < this.events.length; i++) {
+            var event = this.events[i];
+
+            var card = document.createElement('event-card');
+            card.event = event;
+            card.onCardClick = function () {
+                onCardClick(this.id);
+            }.bind(event);
+
+            var eventIndex = this.events.findIndex(indexById(event.id));
+
+            var index = eventIndex - selectedIndex;
+
+            eventContainer.appendChild(card);
+            card.setOrder(index);
+            this.cards[event.id] = card;
+        }
     }
 }
-customElements.define("events-list", EventsList, { extends: 'div' });
+customElements.define('events-list', EventsList, { extends: 'div' });
