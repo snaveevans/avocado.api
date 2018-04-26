@@ -21,19 +21,19 @@ class EventCard extends HTMLElement {
             this.style.left = left + pixels + 'px';
         }.bind(this);
 
-        this.setOrder = function (order) {
-            var percent = 83.33333 * order;
-            var padding = marginSize * order;
-            left = 'calc(50vw + ' + percent + '% + ' + padding + 'px)';
+        // this.setOrder = function (order) {
+        //     var percent = 83.33333 * order;
+        //     var padding = marginSize * order;
+        //     left = 'calc(50vw + ' + percent + '% + ' + padding + 'px)';
 
-            this.style.display = 'table-cell';
-            this.style.width = '100%';
-            // container.style.position = 'absolute';
-            // this.style.height = '100%';
-            // this.style.display = 'inline-block';
-            // container.style.left = left;
-            // container.style.transform = 'translateX(-50%)';
-        }.bind(this);
+        //     this.style.display = 'table-cell';
+        //     this.style.width = '100%';
+        //     container.style.position = 'absolute';
+        //     this.style.height = '100%';
+        //     this.style.display = 'inline-block';
+        //     container.style.left = left;
+        //     container.style.transform = 'translateX(-50%)';
+        // }.bind(this);
     }
     connectedCallback() {
         var event = this.event;
@@ -45,7 +45,11 @@ class EventCard extends HTMLElement {
             throw new Error('event card must have a "onCardClick" property set');
 
         this.className = 'pure-u-5-6';
+        this.style.height = '100%';
+        this.style.cssFloat = 'left';
         this.style.backgroundColor = event.color;
+        this.style.marginBottom = '10px';
+        this.style.textAlign = 'left';
         this.addEventListener('click', onCardClick);
 
         var title = document.createElement('h3');

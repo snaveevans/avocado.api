@@ -8,9 +8,6 @@ class NavigationBar extends HTMLElement {
     }
     connectedCallback() {
 
-        // this.style.position = 'fixed';
-        // this.style.left = '0px';
-        // this.style.bottom = '0px';
         this.style.width = '100%';
         this.style.height = '100%';
         this.style.backgroundColor = '#187CD8';

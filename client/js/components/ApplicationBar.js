@@ -4,15 +4,11 @@ class ApplicationBar extends HTMLElement {
     }
     connectedCallback() {
 
-        // this.style.position = 'fixed';
-        // this.style.left = '0px';
-        // this.style.top = '0px';
         this.style.width = '100%';
         this.style.height = '100%';
         this.style.backgroundColor = '#187CD8';
         this.style.color = '#FFFFFF';
         this.style.display = 'table';
-        // this.style.zIndex = 25;
 
         var header = document.createElement('div');
         header.style.display = 'table-cell';

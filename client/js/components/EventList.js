@@ -7,38 +7,52 @@ class EventsList extends HTMLElement {
         this.events = [];
         this.cards = {};
 
-        var filter = 'upcoming';
-
-        if (this.hasAttribute('filter'))
-            filter = this.getAttribute('filter');
-
         this.style.display = 'table';
         this.style.width = '100%';
         this.style.height = 'calc(100vh - 95px)';
         this.style.backgroundImage = 'linear-gradient(-135deg, #274B75 0%, #253247 100%)';
 
-        var titleContainer = document.createElement('div');
-        titleContainer.style.display = 'table-caption';
-        titleContainer.style.color = '#FFFFFF';
-        this.appendChild(titleContainer);
+        var filter = 'upcoming';
+
+        if (this.hasAttribute('filter'))
+            filter = this.getAttribute('filter');
+
+        var table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.height = '100%';
+        table.style.paddingBottom = '20px';
+        this.appendChild(table);
+
+        var addElement = function (element, height) {
+            var row = document.createElement('tr');
+            table.appendChild(row);
+            var cell = document.createElement('td');
+            if (height)
+                cell.style.height = height;
+            row.appendChild(cell);
+            if (element)
+                cell.appendChild(element);
+            return cell;
+        }
 
         var titleText = filter === 'mine' ?
             'My Events' :
             'Upcoming Events';
+
         var title = document.createElement('div');
         title.className = 'h3';
+        title.style.color = '#FFFFFF';
         title.style.margin = '12px 10px 13px 10px';
         title.appendChild(document.createTextNode(titleText));
-        titleContainer.appendChild(title);
-
-        var rowGroup = document.createElement('div');
-        rowGroup.style.display = 'table-row-group';
-        this.appendChild(rowGroup);
+        addElement(title, '55px');
 
         var eventContainer = document.createElement('div');
-        eventContainer.style.display = 'table-row';
-        eventContainer.style.paddingBottom = '20px';
-        rowGroup.appendChild(eventContainer);
+        eventContainer.style.height = '100%';
+        eventContainer.style.overflowX = 'auto';
+        // eventContainer.style.textAlign = 'center';
+        addElement(eventContainer);
+
+        addElement(null, '20px');
 
         var indexById = function (id) {
             return function (event) {
@@ -59,7 +73,7 @@ class EventsList extends HTMLElement {
                 var eventIndex = this.events.findIndex(indexById(event.id));
 
                 var index = eventIndex - selectedIndex;
-                card.setOrder(index);
+                // card.setOrder(index);
             }
         }.bind(this);
 
@@ -101,7 +115,7 @@ class EventsList extends HTMLElement {
             var index = eventIndex - selectedIndex;
 
             eventContainer.appendChild(card);
-            card.setOrder(index);
+            // card.setOrder(index);
             this.cards[event.id] = card;
         }
     }

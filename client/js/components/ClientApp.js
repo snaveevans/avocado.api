@@ -8,8 +8,6 @@ class ClientApp extends HTMLElement {
         table.style.width = '100vw';
         this.appendChild(table);
 
-        console.log('tag: ' + this.tagName);
-
         var appBar = document.createElement('application-bar');
         var navBar = document.createElement('navigation-bar');
         var router = document.createElement('application-router');
