@@ -49,13 +49,17 @@ const create = ({ name, password, username }) =>
 
 const isValid = ({ name, username, password }) => {
     if (isNullOrEmpty(name))
-        return 'name must have a value';
+        return false;
+    // return 'name must have a value';
     if (isNullOrEmpty(username))
-        return 'username must have a value';
+        return false;
+    // return 'username must have a value';
     if (isNullOrEmpty(password))
-        return 'password must have a value';
+        return false;
+    // return 'password must have a value';
     if (password.length < 10)
-        return 'password must be at least 10';
+        return false;
+    // return 'password must be at least 10';
 }
 
 const login = ({ password, username }) =>

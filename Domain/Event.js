@@ -110,16 +110,22 @@ const create = ({ title, description, date }, account) =>
 
 const isValid = ({ title, description, date }) => {
     if (isNullOrEmpty(title))
-        return 'title must have a value';
+        return false;
+    // return 'title must have a value';
     if (isNullOrEmpty(description))
-        return 'description must have a value';
+        return false;
+    // return 'description must have a value';
     if (isNullOrEmpty(date))
-        return 'date must have a value';
+        return false;
+    // return 'date must have a value';
 
     var dateActual = moment(date, dateFormat, true);
 
     if (!dateActual.isValid())
-        return 'date is not a valid date';
+        return false;
+    // return 'date is not a valid date';
+
+    return true;
 }
 
 const getAllEvents = account =>

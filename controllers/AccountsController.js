@@ -13,14 +13,14 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
     var { name, password, username } = req.body;
 
-    var error = Account.isValid({
+    var isValid = Account.isValid({
         name,
         password,
         username
     });
 
-    if (error)
-        return res.status(400).send({ error });
+    if (!isValid)
+        return res.status(400).send();
 
     Account.create({
         name,

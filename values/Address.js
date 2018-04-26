@@ -32,13 +32,17 @@ const create = ({ city, country, state, street }) => {
 
 const isValid = ({ city, country, state, street }) => {
     if (!street || validator.isEmpty(street))
-        return 'street must have a value';
+        return false;
+    // return 'street must have a value';
     if (!city || validator.isEmpty(city))
-        return 'city must have a value';
+        return false;
+    // return 'city must have a value';
     if (!state || validator.isEmpty(state))
-        return 'state must have a value';
+        return false;
+    // return 'state must have a value';
     if (!country || validator.isEmpty(country))
-        return 'country must have a value';
+        return false;
+    // return 'country must have a value';
 }
 
 module.exports = {

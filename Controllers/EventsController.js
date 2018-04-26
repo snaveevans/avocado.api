@@ -35,14 +35,14 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
     var { title, description, date } = req.body;
 
-    var error = Event.isValid({
+    var isValid = Event.isValid({
         date,
         description,
         title
     });
 
-    if (error)
-        return res.status(400).send({ error });
+    if (!isValid)
+        return res.status(400).send();
 
     Event.create({
         date,

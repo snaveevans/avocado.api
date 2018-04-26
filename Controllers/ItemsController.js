@@ -61,15 +61,15 @@ router.post('/location', (req, res) => {
     var { street, city, state, country } = req.body;
     var { eventId } = req.params;
 
-    var addressError = Address.isValid({
+    var isValid = Address.isValid({
         city,
         country,
         state,
         street
     });
 
-    if (addressError) {
-        res.status(400).send({ error: addressError });
+    if (!isValid) {
+        res.status(400).send();
         return;
     }
 
