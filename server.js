@@ -1,4 +1,4 @@
-var app = require('./app');
+var app = require('./src/app');
 var port = 3000;
 
 app.listen(port, function () {
