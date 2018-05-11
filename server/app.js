@@ -3,7 +3,6 @@ var app = express();
 var bodyParser = require('body-parser');
 var Promise = require("bluebird");
 var db = require('./db');
-var Account = require('./domain/Account');
 
 // TODO: create helper class to retrieve entities from persistance
 
@@ -15,7 +14,7 @@ app.use(express.static('client'));
 
 app.use((req, res, next) => {
     Promise.onPossiblyUnhandledRejection(error => {
-        console.error(error);
+        console.error(error); // eslint-disable-line
         res.status(500).send({ error: "well i tried" });
     })
     next();
@@ -46,11 +45,11 @@ app.use(function (req, res) {
         return res.status(404).send({ error: "This is not the page you are looking for." })
 
     return res.status(200)
-        .sendFile('client/error.html', {root: __dirname });
+        .sendFile('client/error.html', { root: __dirname });
 })
 
 app.use(function (err, req, res) {
-    console.error(err);
+    console.error(err); // eslint-disable-line
     res.status(500).send({ error: "You've made your point." });
 });
 
